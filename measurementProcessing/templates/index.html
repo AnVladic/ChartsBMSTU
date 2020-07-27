@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Queue</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'bootstrap-4.3.1-dist/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/general.css' %}">
+    <link rel="stylesheet" href="{% static 'css/queue.css' %}">
+</head>
+<body>
+    <div class="top-panel">
+        <p class="register hor-center" data-toggle="modal" data-target="#register">РЕГИСТРАЦИЯ/ВХОД</p>
+    </div>
+    <!-- Модальное окно -->
+    <div class="modal fade" id="register" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <template id="registerForm">
+                <div id="regForm">
+                    <h5>РЕГИСТРАЦИЯ</h5>
+                    <div class="flatten">
+                        <p>Уже зарегистрированы?</p>
+                        <p class="enter" onclick="loginCommand()">Войти сейчас</p>
+                    </div>
+                    {{form.email}}
+                    {{form.username}}
+                    {{form.password1}}
+                    {{form.password2}}
+                    {% if messages %}
+                        <div id="messagesRegisterError">
+                            {% for message in messages %}
+                                {{ message }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                    <input type="submit" onclick="createAccount()" value="Создать аккаунт">
+                </div>
+            </template>
+            <template id="loginForm">
+                <div id="logForm">
+                    <h5>ВХОД</h5>
+                    {{form.email}}
+                    {{form.password1}}
+                    <div class="flatten">
+                        <p>Ещё не зарегистрированы?</p>
+                        <p class="enter" onclick="registerCommand()">Регистрация</p>
+                    </div>
+                    <p class="enter" style="margin-left: 0;">Забыли пароль</p>
+                    <input type="submit" onclick="loginAccount()" value="Войти">
+                </div>
+            </template>
+        </div>
+        </div>
+    </div>
+
+    <div class="queues ver-center">
+        <div class="search">
+            <input class="center" type="text" placeholder="Поиск очереди">
+        </div>
+        <table class="ver-center" id="popularQ">
+        </table>
+
+        <h1>Ваши очереди</h1>
+        <hr>
+        <table class="ver-center">
+            <tr><td class="createQueue">
+                <div>
+                    <img draggable="false" class="center" src="{% static 'image/plus.png' %}" width="40px">
+                </div>
+            </td></tr>
+        </table>
+    </div>
+</body>
+<script src="https://yastatic.net/jquery/3.3.1/jquery.min.js"></script>
+<script src="{% static 'bootstrap-4.3.1-dist/js/bootstrap.min.js' %}"></script>
+<script src="{% static 'js/jquery.js' %}"></script>
+<script src="{% static 'js/scene.js' %}"></script>
+<script src="{% static 'js/queue.js' %}"></script>
+</html>
