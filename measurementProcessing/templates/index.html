@@ -2,79 +2,116 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Queue</title>
+    <title>Graphs</title>
     {% load static %}
     <link rel="stylesheet" href="{% static 'bootstrap-4.3.1-dist/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'farbtastic/farbtastic.css' %}">
     <link rel="stylesheet" href="{% static 'css/general.css' %}">
-    <link rel="stylesheet" href="{% static 'css/queue.css' %}">
+    <link rel="stylesheet" href="{% static 'css/graphs.css' %}">
 </head>
 <body>
-    <div class="top-panel">
-        <p class="register hor-center" data-toggle="modal" data-target="#register">РЕГИСТРАЦИЯ/ВХОД</p>
+    <div id="colorPickerBlock">
+        <div id="colorpicker" class="hor-center"></div>
+        <input id="noColor" type="button" class="hor-center" value="Нет цвета">
+        <input class="hor-center" type="text" id="color" name="color" value="#123456">
     </div>
-    <!-- Модальное окно -->
-    <div class="modal fade" id="register" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <template id="registerForm">
-                <div id="regForm">
-                    <h5>РЕГИСТРАЦИЯ</h5>
+    <div class="graphs hor-center">
+
+        <!--############ Dataset settings ############-->
+        <template id="setGraphBlock">
+            <div class="graphSet addLine">
+                <div name="header" class="headerSet flatten">
+                    <div name="graphColor" class="square"></div>
+                    <p class="graphName">Имя</p>
+                    <p class="arrow">></p>
+                </div>
+                <div class="datasetSettings">
                     <div class="flatten">
-                        <p>Уже зарегистрированы?</p>
-                        <p class="enter" onclick="loginCommand()">Войти сейчас</p>
+                        <div name="borderColor"class="square"></div>
+                        <p>Цвет контура</p>
                     </div>
-                    {{form.email}}
-                    {{form.username}}
-                    {{form.password1}}
-                    {{form.password2}}
-                    {% if messages %}
-                        <div id="messagesRegisterError">
-                            {% for message in messages %}
-                                {{ message }}
-                            {% endfor %}
+                    <div class="flatten">
+                        <div name="backgroundColor" class="square"></div>
+                        <p>Заливка</p>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" value="" id="defaultCheck1">
+                        <label class="form-check-label" for="defaultCheck1">
+                            Default checkbox
+                        </label>
+                      </div>
+                    <div name="devices" class="dropdown">
+                        <button class="dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <img class="iconSet" src="{% static 'svg/device.svg' %}">
+                        </button>
+                        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                         </div>
-                    {% endif %}
-                    <input type="submit" onclick="createAccount()" value="Создать аккаунт">
-                </div>
-            </template>
-            <template id="loginForm">
-                <div id="logForm">
-                    <h5>ВХОД</h5>
-                    {{form.email}}
-                    {{form.password1}}
-                    <div class="flatten">
-                        <p>Ещё не зарегистрированы?</p>
-                        <p class="enter" onclick="registerCommand()">Регистрация</p>
                     </div>
-                    <p class="enter" style="margin-left: 0;">Забыли пароль</p>
-                    <input type="submit" onclick="loginAccount()" value="Войти">
+                    <div name="parametersX" class="dropdown">
+                        <button class="dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <p>X:</p>
+                        </button>
+                        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                        </div>
+                    </div>
+                    <div name="parametersY" class="dropdown">
+                        <button class="dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <p>Y:</p>
+                        </button>
+                        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                        </div>
+                    </div>
                 </div>
-            </template>
-        </div>
-        </div>
-    </div>
+            </div>
+        </template>
 
-    <div class="queues ver-center">
-        <div class="search">
-            <input class="center" type="text" placeholder="Поиск очереди">
-        </div>
-        <table class="ver-center" id="popularQ">
-        </table>
-
-        <h1>Ваши очереди</h1>
-        <hr>
-        <table class="ver-center">
-            <tr><td class="createQueue">
-                <div>
-                    <img draggable="false" class="center" src="{% static 'image/plus.png' %}" width="40px">
+        <!--############ Graph ############-->
+        <template id="graphBlock">
+        <div class="grBar">
+            <h1>Название</h1>
+            <div class="flatten">
+                <div class="graph">
+                    <canvas class="Chart"></canvas>
                 </div>
-            </td></tr>
-        </table>
+                <div class="settingsGraphPanel">
+                    <div class="setRange">
+                        <p>Диапазон</p>
+                        <div class="doubleRange">
+                            <div class="range"></div>
+                            <div class="circle"></div>
+                            <div class="circle"></div>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="graphSet addLine">
+                        <img class="center" draggable="false" src="{% static 'image/plus.png' %}">
+                    </div>
+                </div>
+            </div>
+        </div>
+        </template>
+        <div class="addGraph" id="addGraph">
+            <img class="center" draggable="false" src="{% static 'image/plus.png' %}">
+        </div>
     </div>
 </body>
+<script type="text/javascript">
+    var data_parameters = {{name_parameters|safe}}
+    for (var dev in data_parameters) {
+        var par = data_parameters[dev]
+        data_parameters[dev] = {}
+        for (var i = 0; i < par.length; i++) {
+            data_parameters[dev][par[i]] = [[], []]
+        }
+    }
+</script>
 <script src="https://yastatic.net/jquery/3.3.1/jquery.min.js"></script>
-<script src="{% static 'bootstrap-4.3.1-dist/js/bootstrap.min.js' %}"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.3"></script>
+<script src="{% static 'bootstrap-4.3.1-dist/js/bootstrap.bundle.min.js' %}"></script>
 <script src="{% static 'js/jquery.js' %}"></script>
-<script src="{% static 'js/scene.js' %}"></script>
+<script src="{% static 'farbtastic/farbtastic.js' %}"></script>
+<script src="{% static 'js/parsedata.js' %}"></script>
 <script src="{% static 'js/queue.js' %}"></script>
+<script src="{% static 'js/graphs.js' %}"></script>
+<script src="{% static 'js/scene.js' %}"></script>
 </html>
