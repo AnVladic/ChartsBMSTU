@@ -16,7 +16,7 @@ body {
     left: 50%;
 }
 
-.ver-center, .circle  {
+.ver-center  {
     position: relative;
     transform: translate(0, -50%);
     top: 50%;
@@ -45,6 +45,7 @@ input, button {
 }
 
 .doubleRange {
+    position: relative;
     display: flex;
     margin-top: 5px;
     width: 100%;
@@ -54,8 +55,23 @@ input, button {
 }
 
 .circle {
+    cursor: pointer;
+    user-select:none;
+    position: absolute;
     border-radius: 40px;
-    width: 15px;
+    width: 6px;
     height: 15px;
     background-color: #2196F3;
+    transform: translate(-50%, -50%);
+    top: 50%;
+}
+
+.range {
+    cursor: pointer;
+    user-select:none;
+    position: absolute;
+    background-color: #2196F3;
+    top: inherit;
+    left: inherit;
+    height: inherit;
 }
