@@ -12,9 +12,13 @@ def index(request):
 
 def dataset(request):
     if request.POST:
-        device_set = parse.get_dataset(request.POST['device'])
         param = request.POST['param']
+        device = request.POST['device']
 
+        if param == 'Date':
+            return JsonResponse(list(parse.get_date(device)), safe=False)
+
+        device_set = parse.get_dataset(device)
         data = list(map(lambda x: x[param], device_set))
         return JsonResponse(data, safe=False)
     return HttpResponse(0)

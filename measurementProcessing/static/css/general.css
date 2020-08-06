@@ -42,6 +42,11 @@ input, button {
     background-color: transparent;
     border: solid 1px #b3b3b3;
     border-radius: 5px;
+    transition-duration: 0.1s;
+}
+
+.bt:hover {
+    transform: scale(1.04);
 }
 
 .doubleRange {
@@ -74,4 +79,8 @@ input, button {
     top: inherit;
     left: inherit;
     height: inherit;
+}
+
+button#dropdownMenuButton {
+    overflow: hidden;
 }

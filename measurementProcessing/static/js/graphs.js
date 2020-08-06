@@ -1,167 +1,21 @@
-var defaultGraph = [
-    {
-        name: 'First',
-        graph: [
-            {
-                label: 'My First dataset',
-                borderColor: '#ff42b8',
-                backgroundColor: '#ff94b6',
-                showLine: true,
-                pointBorderColor: 'transparent',
-                pointBackgroundColor: 'transparent',
-                lineTension: 0
-            },
-        ],
-        param: [
-            {
-                device: 'РОСА К-2',
-                y: 'soil_soilH',
-                x: 'soil_soilT',
-            }
-        ],
-        type: 'scatter',
-    },
-    {
-        name: 'Second',
-        graph: [
-            {
-                label: 'My Second dataset',
-                borderColor: '#9d94ff',
-                backgroundColor: 'transparent',
-                showLine: true,
-                pointBorderColor: 'transparent',
-                pointBackgroundColor: 'transparent',
-                lineTension: 0
-            },
-            {
-                label: 'My Third dataset',
-                borderColor: '#2eff32',
-                backgroundColor: 'transparent',
-                showLine: true,
-                pointBorderColor: 'transparent',
-                pointBackgroundColor: 'transparent',
-                lineTension: 0
-            },
-        ],
-        param: [
-            {
-                device: 'TEST',
-                y: 'dallas_temp2',
-                x: 'dallas_temp1',
-            },
-            {
-                device: 'TEST',
-                y: 'system_RSSI',
-                x: 'dallas_temp1',
-            }
-        ],
-        type: 'scatter',
-    }
-]
+function load_api(src) {
+    let script = document.createElement('script');
+    script.src = src;
+    document.head.append(script);
+}
+//load_api('static/js/defaultSet.js')
+
+function average(nums) {
+    return nums.reduce((a, b) => (a + b)) / nums.length;
+}
 
 
-/*class Range  {
-    constructor(parent, func) {
-        var circle = parent.getElementsByClassName('circle')
-        this.func = func
-        
-        this.parent = parent
-        this.range = parent.querySelector('.range')
-        this.left = circle[0]
-        this.right = circle[1]
-
-        this.leftWidth 
-
-        this.move(circle[0])
-        this.move(circle[1])
-        this.moveRang(this.range)
-    }
-
-    move(circle) {
-        var self = this
-        var parent = this.parent.getBoundingClientRect()
-
-        function set(x) {
-            x -= 3
-            circle.style.left = x + 'px'
-            if (self.left.offsetLeft > self.right.offsetLeft) {
-                var a = self.left
-                self.left = self.right
-                self.right = a
-            }
-            var left = self.left.offsetLeft, right = self.right.offsetLeft
-            self.func(left / self.parent.offsetWidth, right / self.parent.offsetWidth)
-            self.range.style.left = left + 'px'
-            self.range.style.width = right - left + 'px'
-        }
-
-        function move(event) {
-            parent = self.parent.getBoundingClientRect()
-            if (event.pageX >= parent.x)
-                if (event.pageX <= parent.x + parent.width)
-                    set(event.pageX - self.leftWidth)
-                else
-                    set(parent.x + parent.width - self.leftWidth)
-            else
-                set(parent.x - self.leftWidth)
-        }
-
-        circle.onmousedown = function(event) {
-            document.addEventListener('mousemove', move)
-            self.leftWidth = this.getBoundingClientRect().x - this.offsetLeft
-            function remove() {
-                document.removeEventListener('mousemove', move)
-                document.removeEventListener('mouseup', remove)
-            }
-            document.addEventListener('mouseup', remove)
-        }
-    }
-
-    moveRang(range) {
-        var self = this
-        var delta
-
-        function set(x) {
-            self.left.style.left = x + 'px'
-            self.range.style.left = x + 'px'
-            self.right.style.left = x + self.range.offsetWidth + 'px'
-            self.func(
-                x / self.parent.offsetWidth, 
-                (x + self.range.offsetWidth) / self.parent.offsetWidth
-            )
-        }
-
-        function move(event) {
-            var x = event.pageX - self.leftWidth - delta
-            if (x >= 0)
-                if (x + self.range.offsetWidth <= self.parent.offsetWidth)
-                    set(x)
-                else
-                    set(self.parent.offsetWidth - self.range.offsetWidth)
-            else
-                set(0)
-        }
-
-        range.onmousedown = function(event) {
-            document.addEventListener('mousemove', move)
-            delta = event.pageX - self.leftWidth - self.range.offsetLeft
-            self.leftWidth = this.getBoundingClientRect().x - this.offsetLeft
-            function remove() {
-                document.removeEventListener('mousemove', move)
-                document.removeEventListener('mouseup', remove)
-            }
-            document.addEventListener('mouseup', remove)
-        }
-    }
-
-    set(x, x1) {
-        var left = x * this.parent.offsetWidth, right = x1 * this.parent.offsetWidth
-        this.left.style.left = left + 'px'
-        this.right.style.left = right + 'px'
-        this.range.style.left = left + 'px'
-        this.range.style.width = right - left + 'px'
-    }
-}*/
+function toFormat(label) {
+    var d = new Date(label)
+    var str = d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate()
+    str += ' ' + d.getHours() + ':' + d.getMinutes()
+    return str
+}
 
 
 function createDownTownList(parent, list, header, func=function(){}) {
@@ -204,28 +58,49 @@ class SettingGraph {
         this.chart = chart
         this.dataset = dataset
         this.param = param
-        this.data
+        this.data = []
 
         this.div = SettingGraph.templateSetGraphBlock.content.cloneNode(true).firstElementChild
-        chart.block.querySelector('[class="settingsGraphPanel"]').append(this.div)
+        var setGrPanel = chart.block.querySelector('[class="settingsGraphPanel"]')
+        setGrPanel.append(this.div)
+
+        this.calculation = {
+            'как есть': (func) => func(self.data),
+            'осреднить за ч.': (func) => self.mapDate(1000 * 60 * 60, average, func),
+            'осреднить за 3 ч.': (func) => self.mapDate(1000 * 60 * 60 * 3, average, func),
+            'осреднить за сут.': (func) => self.mapDate(1000 * 60 * 60 * 24, average, func),
+            'макс значения за сут': (func) => self.mapDate(1000 * 60 * 60 * 24, (array) => Math.max.apply(null, array), func),
+            'мин значения за сут.': (func) => self.mapDate(1000 * 60 * 60 * 24, (array) => Math.min.apply(null, array), func),
+        }
 
         createDownTownList(this.div.querySelector('[name="devices"]'), Object.keys(data_parameters), param.device, function(device) {
             param.device = device
             var parY = self.div.querySelector('[name="parametersY"]')
-            replaceDownTownList(parY, Object.keys(data_parameters[param.device]))
+            var keys =  Object.keys(data_parameters[param.device])
+            keys.shift()
+            replaceDownTownList(parY, keys)
             parY.querySelector('.dropdown-menu').firstChild.onclick()
             var parX = self.div.querySelector('[name="parametersX"]')
             replaceDownTownList(parX, Object.keys(data_parameters[param.device]))
             parX.querySelector('.dropdown-menu').firstChild.onclick()
-            //self.updateGraph()    
         })
-        createDownTownList(this.div.querySelector('[name="parametersY"]'), Object.keys(data_parameters[param.device]), param.y, function(p) {
+        var keys =  Object.keys(data_parameters[param.device])
+        createDownTownList(this.div.querySelector('[name="parametersX"]'), keys, param.x, function(p) {
+            param.x = p
+            self.updateGraph()   
+        })
+        keys.shift()
+        createDownTownList(this.div.querySelector('[name="parametersY"]'), keys, param.y, function(p) {
             param.y = p
             self.updateGraph()
         })
-        createDownTownList(this.div.querySelector('[name="parametersX"]'), Object.keys(data_parameters[param.device]), param.x, function(p) {
-            param.x = p
-            self.updateGraph()   
+        createDownTownList(this.div.querySelector('[name="calculation"]'), Object.keys(this.calculation), this.param.calc, function(p) {
+            self.param.calc = p
+            self.calculation[p](function(data) {
+                console.log(data.length)
+                self.dataset.data = data
+                self.chart.chart.update()
+            })
         })
 
         this.updateGraph()
@@ -252,16 +127,79 @@ class SettingGraph {
         this.header.onclick = () => this.show()
     }
 
+    mapDate(range, func, ready) {
+        var self = this,
+        data = [],
+        x1 = this.data.map((x) => x.x),
+        start = 0
+
+        function addSlice(end) {
+            if (end < x1.length) {
+                var x = x1.slice(start, end)
+                var y = data_parameters[self.param.device][self.param.y][1].slice(start, end)
+                data.push({
+                    x: average(x),
+                    y: func(y),
+                })
+                start = end
+                self.getDateRange(end, range, addSlice)
+            } else
+                ready(data)
+        }
+
+        self.getDateRange(start, range, addSlice)
+    }
+
+    getDateRange(startIndex, rangeTime, func) {
+        var self = this
+        function findTheClosest(arr, startIndex, base){
+            var arrLen = arr.length;
+            var theClosest = Infinity;
+            var i, temp, index;
+
+            for(i = startIndex; i < arrLen; i++) {
+                temp = Math.abs(arr[i] - base);
+                if(temp < theClosest){
+                    theClosest = temp;
+                    index = i;
+                };
+            };
+            return index
+        };
+        getData(this.param.device, 'Date', function(date) {
+            var endV = date[startIndex] + rangeTime
+            var endIndex = findTheClosest(date, startIndex, endV) + 1
+            func(endIndex)
+        })
+    }
+
     updateGraph() {
         var self = this
+        if (this.param.x == 'Date') {
+            this.chart.chart.options.scales.xAxes = [{
+                ticks: {
+                    userCallback: function(label, index, labels) {
+                        return toFormat(label)
+                    }
+                }
+            }]
+            this.chart.chart.options.tooltips.callbacks = {
+                    label: function(tooltipItems) {
+                        var str = toFormat(tooltipItems.xLabel)
+                        str += '; ' + tooltipItems.yLabel
+                        return str;
+                    }
+            }
+        } else {
+            delete this.chart.chart.options.scales.xAxes
+            delete this.chart.chart.options.tooltips.callbacks.label
+        }
         buildData(this.param.device, this.param.x, this.param.device, this.param.y, function(data) {
             self.data = data
-            self.dataset.data = data
-            self.chart.chart.update()
-            if (self.chart.rMin > data[0].x)
-                self.chart.rMin = self.data[0].x
-            if (self.chart.rMax < self.data[self.data.length - 1].x)
-                self.chart.rMax = self.data[self.data.length - 1].x
+            self.calculation[self.param.calc](function(data) {
+                self.dataset.data = data
+                self.chart.chart.update()
+            })
         })
     }
 
@@ -307,12 +245,6 @@ class SettingGraph {
         this.div.classList.add('addLine')
         this.header.onclick = () => this.show()
     }
-
-    rangeData() {
-        var len = this.data.length
-        this.dataset.data = this.data.slice(parseInt(len * this.chart.start), parseInt(len * this.chart.end))
-        this.chart.chart.update()
-    }
 }
 
 
@@ -320,30 +252,23 @@ class Graph {
     static templateGraphBlock = document.getElementById('graphBlock')
     static focus
 
-    constructor(options) {
+    constructor(options={
+        name: 'Name',
+        graph: [],
+        param: [
+        ],
+        type: 'scatter',
+    }) {
         var self = this
 
-        this.rMax = -Infinity
-        this.rMin = Infinity
-        this.start = 0
-        this.end = 1
         this.block = Graph.templateGraphBlock.content.cloneNode(true).firstElementChild
         Graph.templateGraphBlock.before(this.block)
         this.block.getElementsByTagName('h1')[0].innerHTML = options.name
         this.options = options
 
         var ctx = this.block.getElementsByClassName('Chart')[0].getContext('2d');
-
-        function onZP(c) {
-            c = c['chart']
-            var delta = self.rMax - self.rMin,
-            dS = (c.scales['x-axis-1'].start - self.rMin) / delta, 
-            dE = (c.scales['x-axis-1'].end - self.rMin) / delta
-            self.range.set(dS, dE)
-        }
-
         this.chart = new Chart(ctx, {
-            type: options.type,
+            type: 'scatter',
             data: {
                 datasets: options.graph
             },
@@ -354,35 +279,58 @@ class Graph {
                     mode: 'x',
                     speed: 100,
                     threshold: 100,
-                    onPan: onZP,
-
                 },
                 zoom: {
                     enabled: true,
                     drag: false,
                     mode: 'x',
-                    rangeMax: {
-                        x: null,
-                        y: null
-                    },
-                    onZoom: onZP,
+                    limits: {
+                        max: 10,
+                        min: 0.5
+                    }
                 },
+                elements: {
+                    line: {
+                        tension: 0, // disables bezier curves
+                        borderDash: []
+                    }
+                },
+                scales: {
+                    xAxes: [{
+                        ticks: {
+                            userCallback: function(label, index, labels) {
+                                var d = new Date(label)
+                                var str = d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate()
+                                str += ' ' + d.getHours() + ':' + d.getMinutes()
+                                return str;
+                            }
+                        }
+                    }]
+                },
+                tooltips: {
+                    displayColors: false,
+                }
             },
         });
 
         this.settingGraph = []
         for (var i = options.graph.length - 1; i >= 0; i--)
             this.settingGraph.push(new SettingGraph(this, this.chart.data.datasets[i], options.param[i]))
-        
-        var lines = this.block.getElementsByClassName('doubleRange')
-        this.range = new Range(lines[0], (x, x1) => self.rangeData(x, x1))
-    }
 
-    rangeData(x, x1) {
-        this.start = x
-        this.end = x1
-        for (var i = 0; i < this.settingGraph.length; i++)
-            this.settingGraph[i].rangeData()
+        this.block.querySelector('[name="reser_zoom"]').onclick = function() {
+            self.chart.resetZoom()
+        }
+        this.block.querySelector('[name="add_graph"]').onclick = function() {
+            self.chart.data.datasets.push(Object.assign({}, createDefaultGraph.graph))
+            var param = options.param[options.param.length - 1]
+            if (options.param.length == 0)
+                param = createDefaultGraph.param
+            self.settingGraph.push(new SettingGraph(
+                self,
+                self.chart.data.datasets[self.chart.data.datasets.length - 1],
+                param,
+            ))
+        }
     }
 }
 

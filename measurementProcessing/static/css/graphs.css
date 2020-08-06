@@ -1,11 +1,16 @@
 .graphs {
     padding: 25px 25px;
-    width: 1050px;
+    width: 1200px;
+    min-width: 800px;
     background-color: #fff;
 }
 
+.gr {
+    /* width: 50%; */
+}
+
 .graph {
-    width: 700px;
+    width: 75%;
     margin-right: 15px;
 }
 
@@ -62,15 +67,22 @@ div#colorpicker {
     width: 195px;
 }
 
+div#addGraph {
+    overflow-x: initial;
+    overflow-y: initial;
+}
+
 /* SETTINGS */
 
 
 .settingsGraphPanel {
-    height: 370px;
+    margin-top: 31px;
+    height: inherit;
+    min-width: 100px;
     flex: auto;
     animation-duration: 1s; 
     font-size: 16px;
-    padding: 10px 0;
+    height: 450px;
     /* animation-name: pos-right; */
 }
 
@@ -176,4 +188,9 @@ input#defaultCheck1 {
 
 .form-check {
     padding-left: 10px;
+}
+
+.dropdown-menu.show {
+    max-height: 36vh;
+    overflow-y: auto;
 }
