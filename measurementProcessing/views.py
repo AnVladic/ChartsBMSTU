@@ -19,6 +19,6 @@ def dataset(request):
             return JsonResponse(list(parse.get_date(device)), safe=False)
 
         device_set = parse.get_dataset(device)
-        data = list(map(lambda x: x[param], device_set))
+        data = list(map(lambda x: x[param] if param in x else None, device_set))
         return JsonResponse(data, safe=False)
     return HttpResponse(0)

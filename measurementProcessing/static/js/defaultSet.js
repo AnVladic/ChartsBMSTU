@@ -3,82 +3,144 @@ var defaultGraph = [
         name: 'First',
         graph: [
             {
-                type: 'bar',
                 label: 'My First dataset',
                 borderColor: '#ff42b8',
                 backgroundColor: '#ff94b6',
-                showLine: true,
-                pointBorderColor: 'transparent',
-                pointBackgroundColor: 'transparent',
-                lineTension: 0
-            },
-        ],
-        param: [
-            {
                 device: 'РОСА К-2',
                 calc: 'осреднить за ч.',
                 y: 'color_red',
                 x: 'Date',
-            }
+            },
         ],
-        //type: 'scatter',
+        type: 'scatter',
     },
     {
         name: 'Second',
         graph: [
             {
-                type: 'scatter',
-                label: 'My Second dataset',
+                label: 'blue',
                 borderColor: '#9d94ff',
                 backgroundColor: 'transparent',
                 showLine: true,
                 pointBorderColor: 'transparent',
                 pointBackgroundColor: 'transparent',
-                lineTension: 0
+                lineTension: 0,
+                device: 'TEST',
+                y: 'color_blue',
+                x: 'color_red',
+                calc: 'как есть',
             },
             {
-                type: 'scatter',
-                label: 'My Third dataset',
+                label: 'green',
                 borderColor: '#2eff32',
                 backgroundColor: 'transparent',
                 showLine: true,
                 pointBorderColor: 'transparent',
                 pointBackgroundColor: 'transparent',
-                lineTension: 0
-            },
-        ],
-        param: [
-            {
+                lineTension: 0,
                 device: 'TEST',
-                y: 'dallas_temp2',
-                x: 'dallas_temp1',
-                calc: 'осреднить за ч.',
+                y: 'color_green',
+                x: 'color_red',
+                calc: 'как есть',
             },
-            {
-                device: 'TEST',
-                y: 'system_RSSI',
-                x: 'dallas_temp1',
-                calc: 'осреднить за ч.',
-            }
         ],
         type: 'scatter',
+    },
+    {
+        name: 'Third',
+        graph: [
+            {
+                label: 'red',
+                borderColor: '#e60e00',
+                backgroundColor: '#ff2624',
+                device: 'РОСА К-2',
+                y: 'color_red',
+            },
+            {
+                label: 'green',
+                borderColor: '#05db00',
+                backgroundColor: '#05db00',
+                device: 'РОСА К-2',
+                y: 'color_green',
+            },
+            {
+                label: 'blue',
+                borderColor: '#9d94ff',
+                backgroundColor: '#6bd5ff',
+                device: 'РОСА К-2',
+                y: 'color_blue',
+            },
+        ],
+        x: 'Date',
+        type: 'bar',
+        range: [0.0, 1.0],
+        calc: 'среднее',
+    },
+    {
+        name: 'Fourth',
+        graph: [
+            {
+                label: 'red',
+                borderColor: 'transparent',
+                backgroundColor: '#ff2624',
+                device: 'РОСА К-2',
+                y: 'light_blink',
+            },
+            {
+                label: 'green',
+                borderColor: 'transparent',
+                backgroundColor: '#05db00',
+                device: 'РОСА К-2',
+                y: 'color_red',
+            },
+            {
+                label: 'blue',
+                borderColor: 'transparent',
+                backgroundColor: '#6bd5ff',
+                device: 'РОСА К-2',
+                y: 'color_green',
+            },
+            {
+                label: 'blink',
+                borderColor: 'transparent',
+                backgroundColor: '#fff942',
+                device: 'РОСА К-2',
+                y: 'color_blue',
+            },
+        ],
+        x: 'Date',
+        type: 'polarArea',
+        range: [0.0, 1.0],
+        calc: 'среднее',
     }
 ]
 
 var createDefaultGraph = {
-    graph: {
+    scatter: {
         label: 'name graph',
         borderColor: '#faa',
         backgroundColor: 'transparent',
         showLine: true,
         pointBorderColor: 'transparent',
         pointBackgroundColor: 'transparent',
-        lineTension: 0
-    },
-    param: {
+        lineTension: 0,
         device: 'TEST',
         y: 'dallas_temp1',
         x: 'dallas_temp1',
         calc: 'как есть',
+    },
+    bar: {
+        label: 'name',
+        borderColor: '#faa',
+        backgroundColor: '#f55',
+        device: 'РОСА К-2',
+        y: 'color_red',
+    },
+    polarArea: {
+        label: 'name',
+        borderColor: '#faa',
+        backgroundColor: '#f55',
+        device: 'РОСА К-2',
+        y: 'color_red',
     }
 }

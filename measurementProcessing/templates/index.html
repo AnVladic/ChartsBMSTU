@@ -18,7 +18,8 @@
     <div class="graphs hor-center">
 
         <!--############ Dataset settings ############-->
-        <template id="setGraphBlock">
+            <!--############ Scatter ############-->
+        <template id="setGraphBlockScatter">
             <div class="graphSet addLine">
                 <div name="header" class="headerSet flatten">
                     <div name="graphColor" class="square"></div>
@@ -34,12 +35,6 @@
                         <div name="backgroundColor" class="square"></div>
                         <p>Заливка</p>
                     </div>
-                    <!-- <div class="form-check">
-                        <input class="form-check-input" type="checkbox" value="" id="defaultCheck1">
-                        <label class="form-check-label" for="defaultCheck1">
-                            Default checkbox
-                        </label>
-                      </div> -->
                     <div name="devices" class="dropdown">
                         <button class="dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             <img class="iconSet" src="{% static 'svg/device.svg' %}">
@@ -68,6 +63,141 @@
                         <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                         </div>
                     </div>
+                    <button type="button" name="deleteLittleGraph" class="btn btn-danger btn-sm">Удалить</button>
+                </div>
+            </div>
+        </template>
+        
+            <!--############ Bar ############-->
+        <template id="setGraphBlockBar">
+            <div class="graphSet addLine">
+                <div name="header" class="headerSet flatten">
+                    <div name="graphColor" class="square"></div>
+                    <p class="graphName">Имя</p>
+                    <p class="arrow">></p>
+                </div>
+                <div class="datasetSettings">
+                    <div class="flatten">
+                        <div name="borderColor"class="square"></div>
+                        <p>Цвет контура</p>
+                    </div>
+                    <div class="flatten">
+                        <div name="backgroundColor" class="square"></div>
+                        <p>Заливка</p>
+                    </div>
+                    <div name="devices" class="dropdown">
+                        <button class="dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <img class="iconSet" src="{% static 'svg/device.svg' %}">
+                        </button>
+                        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                        </div>
+                    </div>
+                    <div name="parametersY" class="dropdown">
+                        <button class="dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <p>Y:</p>
+                        </button>
+                        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                        </div>
+                    </div>
+                    <button type="button" name="deleteLittleGraph" class="btn btn-danger btn-sm">Удалить</button>
+                </div>
+            </div>
+        </template>
+
+        <!--############ SetBar ############-->
+            <!--############ Scatter ############-->
+        <template id="setBarScatter">
+            <div class="settingsGraphPanel">
+                <input class="bt" type="button" value="Сбросить масштаб" name="reser_zoom">
+                <hr>
+                <div name="add_graph" class="graphSet addLine">
+                    <img class="center" draggable="false" src="{% static 'image/plus.png' %}">
+                </div>
+            </div>
+        </template>
+
+            <!--############ Bar ############-->
+        <template id="setBarBar">
+            <div class="settingsGraphPanel">
+                <div name="parametersX" class="dropdown">
+                    <button class="dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <p>X:</p>
+                    </button>
+                    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                    </div>
+                </div>
+                <div class="inputText">
+                    <p>Минимум по Y</p>
+                    <input name="min_value" type="number" value="0">
+                </div>
+                <hr>
+                <div class="setRange">
+                    <p>Диапазон</p>
+                    <div class="doubleRange">
+                        <div class="range"></div>
+                        <div class="circle"></div>
+                        <div class="circle"></div>
+                    </div>
+                    <div class="inputText">
+                        <p>От: </p>
+                        <input name="from_value" type="datetime-local">
+                    </div>
+                    <div class="inputText">
+                        <p>До: </p>
+                        <input name="to_value" type="datetime-local">
+                    </div>
+                </div>
+                <div name="calc" class="dropdown">
+                    <button class="dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <p></p>
+                    </button>
+                    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                    </div>
+                </div>
+                <hr>
+                <div name="add_graph" class="graphSet addLine">
+                    <img class="center" draggable="false" src="{% static 'image/plus.png' %}">
+                </div>
+            </div>
+        </template>
+
+            <!--############ SetBar ############-->
+        <template id="setBarPolarArea">
+            <div class="settingsGraphPanel">
+                <div name="parametersX" class="dropdown">
+                    <button class="dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <p>X:</p>
+                    </button>
+                    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                    </div>
+                </div>
+                <hr>
+                <div class="setRange">
+                    <p>Диапазон</p>
+                    <div class="doubleRange">
+                        <div class="range"></div>
+                        <div class="circle"></div>
+                        <div class="circle"></div>
+                    </div>
+                    <div class="inputText">
+                        <p>От: </p>
+                        <input name="from_value" type="datetime-local">
+                    </div>
+                    <div class="inputText">
+                        <p>До: </p>
+                        <input name="to_value" type="datetime-local">
+                    </div>
+                </div>
+                <div name="calc" class="dropdown">
+                    <button class="dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <p></p>
+                    </button>
+                    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                    </div>
+                </div>
+                <hr>
+                <div name="add_graph" class="graphSet addLine">
+                    <img class="center" draggable="false" src="{% static 'image/plus.png' %}">
                 </div>
             </div>
         </template>
@@ -79,13 +209,6 @@
             <div class="gr flatten">
                 <div class="graph">
                     <canvas class="Chart"></canvas>
-                </div>
-                <div class="settingsGraphPanel">
-                    <input class="bt" type="button" value="Сбросить масштаб" name="reser_zoom">
-                    <hr>
-                    <div name="add_graph" class="graphSet addLine">
-                        <img class="center" draggable="false" src="{% static 'image/plus.png' %}">
-                    </div>
                 </div>
             </div>
         </div>
@@ -112,10 +235,10 @@
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@0.7.7"></script>
 <script src="{% static 'bootstrap-4.3.1-dist/js/bootstrap.bundle.min.js' %}"></script>
 <script src="{% static 'js/jquery.js' %}"></script>
+<script src="{% static 'js/range.js' %}"></script>
 <script src="{% static 'js/defaultSet.js' %}"></script>
 <script src="{% static 'farbtastic/farbtastic.js' %}"></script>
 <script src="{% static 'js/parsedata.js' %}"></script>
-<script src="{% static 'js/queue.js' %}"></script>
 <script src="{% static 'js/graphs.js' %}"></script>
 <script src="{% static 'js/scene.js' %}"></script>
 </html>

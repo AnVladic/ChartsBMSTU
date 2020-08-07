@@ -76,7 +76,6 @@ div#addGraph {
 
 
 .settingsGraphPanel {
-    margin-top: 31px;
     height: inherit;
     min-width: 100px;
     flex: auto;
@@ -103,7 +102,7 @@ div#addGraph {
 }
 
 .setRange {
-    padding: 0 5px;
+    /* padding: 0 5px; */
 }
 
 .setRange > p {
@@ -178,6 +177,7 @@ p.graphName {
 
 .settingsGraphPanel > .dropdown {
     padding: 0;
+    margin: 0;
 }
 
 input#defaultCheck1 {
@@ -193,4 +193,14 @@ input#defaultCheck1 {
 .dropdown-menu.show {
     max-height: 36vh;
     overflow-y: auto;
+}
+
+.inputText p {
+    margin: 0;
+}
+
+button.btn.btn-danger {
+    margin-left: 10px;
+    margin-top: 20px;
+    width: 50%;
 }

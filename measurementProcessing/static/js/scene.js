@@ -6,7 +6,7 @@ $(document).ready(function() {
     function callback(color) {
         inputColor.style.backgroundColor = color
         inputColor.value = color
-        SettingGraph.focus.dataset[SettingGraph.focusColor] = color
+        SettingGraph.focus.setDataset(SettingGraph.focusColor, color)
         SettingGraph.focus.colors[SettingGraph.focusColor].style.backgroundColor = color
         Graph.focus.chart.update()
     }
