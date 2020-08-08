@@ -1,3 +1,11 @@
+var untranslatableParameters = {}
+
+
+function onlyUnique(value, index, self) { 
+    return self.indexOf(value) === index;
+}
+
+
 function getData(device, param, func) {
     if (!(device in data_parameters)) {
         console.log(device, 'was not found')
@@ -22,8 +30,14 @@ function getData(device, param, func) {
                 success: function(response) {
                     if (param == 'Date')
                         data_parameters[device][param][1] = response.map((x) => Date.parse(x))
-                    else 
-                        data_parameters[device][param][1] = response.map((x) => parseFloat(x))
+                    else if (response[0] != null && isNaN(parseFloat(response[1]))) {
+                        untranslatableParameters[param] = {}
+                        var uniq = response.filter( onlyUnique )
+                        uniq.forEach(x => untranslatableParameters[param][x] = Object.keys(untranslatableParameters[param]).length)
+                        for (var i = 0; i < response.length; i++)
+                            data_parameters[device][param][1][i] = untranslatableParameters[param][response[i]]
+                    }
+                    else data_parameters[device][param][1] = response.map((x) => parseFloat(x))
                     for (var i = 0; i < data_parameters[device][param][0].length; i++)
                         data_parameters[device][param][0][i](data_parameters[device][param][1])
                     delete data_parameters[device][param][0]

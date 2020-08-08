@@ -289,28 +289,55 @@ class Scatter extends SettingGraph {
 
     updateGraph() {
         var self = this
-        if (this.param.x == 'Date') {
-            this.chart.chart.options.scales.xAxes = [{
-                ticks: {
-                    userCallback: function(label, index, labels) {
-                        return toFormat(label)
+        buildData(this.param.device, this.param.x, this.param.device, this.param.y, function(data) {
+            if (self.param.x == 'Date') {
+                self.chart.chart.options.scales.xAxes = [{
+                    ticks: {
+                        userCallback: function(label, index, labels) {
+                            return toFormat(label)
+                        }
+                    }
+                }]
+                self.chart.chart.options.tooltips.callbacks = {
+                        label: function(tooltipItems) {
+                            var str = toFormat(tooltipItems.xLabel)
+                            str += '; ' + tooltipItems.yLabel.toFixed(2)
+                            return str;
+                        }
+                }
+            } else if (self.param.x in untranslatableParameters) {
+                self.chart.chart.options.scales.xAxes = [{
+                    ticks: {
+                        userCallback: function(label, index, labels) {
+                            var key = Object.keys(untranslatableParameters[self.param.x])
+                            return key[label]
+                        }
+                    }
+                }]
+                self.chart.chart.options.tooltips.callbacks = {
+                    label: function(tooltipItems) {
+                        var key = Object.keys(untranslatableParameters[self.param.x])
+                        return key[tooltipItems.xLabel] + '; ' + tooltipItems.yLabel.toFixed(2)
                     }
                 }
-            }]
-            this.chart.chart.options.tooltips.callbacks = {
-                    label: function(tooltipItems) {
-                        var str = toFormat(tooltipItems.xLabel)
-                        str += '; ' + tooltipItems.yLabel.toFixed(2)
-                        return str;
-                    }
+            } else {
+                delete self.chart.chart.options.scales.xAxes
+                delete self.chart.chart.options.tooltips.callbacks.label
             }
-        } else {
-            delete this.chart.chart.options.scales.xAxes
-            delete this.chart.chart.options.tooltips.callbacks.label
-        }
-        buildData(this.param.device, this.param.x, this.param.device, this.param.y, function(data) {
+            if (self.param.y in untranslatableParameters) {
+                self.chart.chart.options.scales.yAxes = [{
+                    ticks: {
+                        userCallback: function(label, index, labels) {
+                            var key = Object.keys(untranslatableParameters[self.param.y])
+                            return key[label]
+                        }
+                    }
+                }]
+            }
+
             self.data = data
             self.calculation[self.param.calc](function(data) {
+                console.log(data)
                 self.dataset.data = data
                 self.chart.chart.options.animation.duration = 1000
                 self.chart.chart.update()
