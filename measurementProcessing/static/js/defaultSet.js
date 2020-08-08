@@ -80,6 +80,13 @@ var defaultGraph = [
         name: 'Fourth',
         graph: [
             {
+                label: 'lux',
+                borderColor: 'transparent',
+                backgroundColor: '#ff66ef',
+                device: 'РОСА К-2',
+                y: 'light_lux',
+            },
+            {
                 label: 'red',
                 borderColor: 'transparent',
                 backgroundColor: '#ff2624',
@@ -139,7 +146,7 @@ var createDefaultGraph = {
     polarArea: {
         label: 'name',
         borderColor: '#faa',
-        backgroundColor: '#f55',
+        backgroundColor: '#ff5555',
         device: 'РОСА К-2',
         y: 'color_red',
     }

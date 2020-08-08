@@ -52,6 +52,17 @@ function replaceDownTownList(parent, list, func=function(){}) {
 }
 
 
+function isScrolledIntoView(elem)
+{
+       var docViewTop = $(window).scrollTop();
+       var docViewBottom = docViewTop + $(window).height();
+
+       var elemTop = elem.offsetTop;
+       var elemBottom = elemTop + elem.offsetHeight;
+
+       return ((elemTop <= docViewBottom) && (elemBottom >= docViewTop));
+}
+
 class SettingGraph {
     static focus
     static focusColor
@@ -64,6 +75,7 @@ class SettingGraph {
         this.data = []
         this.getDataset = getDataset
         this.setDataset = setDataset
+        this.index = this.chart.settingGraph.length
 
         this.div = templateSetGraphBlock.content.cloneNode(true).firstElementChild
         var setGrPanel = chart.block.querySelector('.settingsGraphPanel')
@@ -96,9 +108,18 @@ class SettingGraph {
         this.colors.borderColor.onclick = (e) => this.clickColor('borderColor', e.pageX + 100, e.pageY - 100)
         this.colors.backgroundColor.onclick = (e) => this.clickColor('backgroundColor', e.pageX + 100, e.pageY - 100)
         this.header.onclick = () => this.show()
+
+        this.div.querySelector('[name="deleteLittleGraph"]').onclick = () => self.remove()
     }
 
     getSetting() {}
+
+    remove() {
+        this.div.remove()
+        this.chart.settingGraph.splice(this.index, 1)
+        for (var i = this.index; i < this.chart.settingGraph.length; i++)
+            this.chart.settingGraph[i].index = i
+    }
 
     mapDate(range, func, ready) {
         var self = this,
@@ -253,6 +274,12 @@ class Scatter extends SettingGraph {
         this.updateGraph()
     }
 
+    remove() {
+        super.remove()
+        this.chart.chart.data.datasets.splice(this.index, 1)
+        this.chart.chart.update()
+    }
+
     updateGraph() {
         var self = this
         if (this.param.x == 'Date') {
@@ -316,7 +343,6 @@ class Bar extends SettingGraph {
         super(chart, dataset, param, Bar.templateSetGraphBlock, 
             name=>dataset[name][index], (name, color)=>(dataset[name][index]=color))
         var self = this
-        this.index = index
         this.chart.chart.data.labels.push(chart.options.x)
         this.updateRangeX(function() {
             var range = self.chart.rangeX.max - self.chart.rangeX.min
@@ -325,6 +351,26 @@ class Bar extends SettingGraph {
             self.chart.setInputRange('max', self.chart.rangeX.min + range * self.chart.options.range[1], isDate)
             self.updateGraph()
         })
+
+        createDownTownList(this.div.querySelector('[name="devices"]'), Object.keys(data_parameters), param.device, function(device) {
+            param.device = device
+            var parY = self.div.querySelector('[name="parametersY"]')
+            var keys = Object.keys(data_parameters[param.device])
+            keys.shift()
+            replaceDownTownList(parY, keys)
+            parY.querySelector('.dropdown-menu').firstChild.onclick()
+        })
+    }
+
+    remove() {
+        super.remove()
+        var ds = this.chart.chart.data.datasets[0]
+        ds.label.splice(this.index, 1)
+        ds.backgroundColor.splice(this.index, 1)
+        ds.borderColor.splice(this.index, 1)
+        ds.data.splice(this.index, 1)
+        this.chart.chart.data.labels.splice(this.index, 1)
+        this.chart.chart.update()
     }
 
     updateRangeX(func) {
@@ -417,12 +463,40 @@ class Graph {
     static focus
 
     constructor(options) {
+        var self = this
         this.block = GraphScatter.templateGraphBlock.content.cloneNode(true).firstElementChild
         GraphScatter.templateGraphBlock.before(this.block)
         this.block.getElementsByTagName('h1')[0].innerHTML = options.name
         this.options = options
 
+        this.block.querySelector('.ellipsis').onclick = function() {
+            var menu = self.block.querySelector('.menu')
+            menu.style.display = 'block'
+            $(document).mouseup(function (e) {
+                var div = $('.menu');
+                if (!div.is(e.target) && div.has(e.target).length === 0) {
+                    menu.style.display = 'none'
+                    $(this).off('mouseup')
+                }
+            })
+        }
+        var changeName = this.block.querySelector('[name="change_name"]')
+        changeName.value = options.name
+        this.block.querySelector('[name="change_name"]').oninput = function() {
+            self.options.name = this.value
+            self.block.querySelector('h1').innerHTML = this.value
+        }
+
         this.settingGraph = []
+        self.getNewGraph(options)
+
+        this.show = function() {
+            if (isScrolledIntoView(self.block)) {
+                self.addDatasets(options.graph)
+                window.removeEventListener('scroll', self.show);
+            }
+        }
+        window.addEventListener('scroll', this.show);
     }
     
     addGraph(Type, options=null) {
@@ -430,13 +504,21 @@ class Graph {
             options = this.settingGraph.length == 0 ? createDefaultGraph[this.options.type] : this.settingGraph[this.settingGraph.length - 1].getSetting()
         this.settingGraph.push(new Type(this, options))
     }
+
+    getNewGraph(options) {}
+    addDatasets(graph) {}
+
+    remove() {
+        while (this.settingGraph.length != 0)
+            this.settingGraph[0].remove()
+        this.chart.destroy()
+        this.block.remove()
+    }
 }
 
 
 class GraphScatter extends Graph {
-    constructor(options=[]) {
-        super(options)
-
+    getNewGraph(options) {
         var self = this
         var ctx = this.block.getElementsByClassName('Chart')[0].getContext('2d');
         this.chart = new Chart(ctx, {
@@ -479,22 +561,21 @@ class GraphScatter extends Graph {
             self.chart.resetZoom()
         }
 
-        for (var i = options.graph.length - 1; i >= 0; i--)
-            this.addGraph(Scatter, options.graph[i])
-
         this.block.querySelector('[name="add_graph"]').onclick = function() {
             self.addGraph(Scatter)
         }
+        return this.chart
+    }
+
+    addDatasets(graph) {
+        for (var i = graph.length - 1; i >= 0; i--)
+            this.addGraph(Scatter, graph[i])
     }
 }
 
 
 class GraphBar extends Graph {
-    constructor(options=[]) {        
-        super(options)
-
-        var self = this
-
+    init() {
         this.rangeX = {
             min: -Infinity, 
             max: Infinity,
@@ -507,11 +588,12 @@ class GraphBar extends Graph {
             'максимум': data => Math.max.apply(null, data),
             'минимум': data => Math.min.apply(null, data),
         }
-        this.getNewGraph(options)
     }
 
     getNewGraph(options) {
         var self = this
+        this.init()
+
         var ctx = this.block.getElementsByClassName('Chart')[0].getContext('2d');
         this.chart = new Chart(ctx, {
             type: options.type,
@@ -532,13 +614,15 @@ class GraphBar extends Graph {
         this.connectHTML(setBat, 'РОСА К-2')
         this.chart.options.legend.display = false
 
-        for (var i = options.graph.length - 1; i >= 0; i--)
-            this.addGraph(Bar, options.graph[i])
-
         this.block.querySelector('[name="add_graph"]').onclick = function() {
             self.addGraph(Bar)
         }
         return this.chart
+    }
+
+    addDatasets(graph) {
+        for (var i = graph.length - 1; i >= 0; i--)
+            this.addGraph(Bar, graph[i])
     }
 
     connectHTML(setBat, device) {
@@ -655,6 +739,8 @@ class GraphBar extends Graph {
 class GraphPolarArea extends GraphBar {
     getNewGraph(options) {
         var self = this
+        this.init()
+
         var ctx = this.block.getElementsByClassName('Chart')[0].getContext('2d');
         this.chart = new Chart(ctx, {
             type: options.type,
@@ -674,13 +760,15 @@ class GraphPolarArea extends GraphBar {
         this.connectHTML(setBat, 'РОСА К-2')
         this.chart.options.legend.display = false
 
-        for (var i = options.graph.length - 1; i >= 0; i--)
-            this.addGraph(PolarArea, options.graph[i])
-
         this.block.querySelector('[name="add_graph"]').onclick = function() {
             self.addGraph(PolarArea)
         }
         return this.chart
+    }
+
+    addDatasets(graph) {
+        for (var i = graph.length - 1; i >= 0; i--)
+            this.addGraph(PolarArea, graph[i])
     }
 }
 
@@ -691,12 +779,68 @@ var TypeGraphs = {
     'bar': GraphBar,
     'polarArea': GraphPolarArea,
 }
-for (var i = 0; i < defaultGraph.length; i++) {
-    graphs.push(new TypeGraphs[defaultGraph[i].type](defaultGraph[i]))
-    Graph.templateGraphBlock.before(document.createElement('hr'))
+
+
+
+function createGraph(options) {
+    let graph = new TypeGraphs[options.type](options), index = graphs.length
+    graphs.push(graph)
+    let hr = document.createElement('hr')
+    Graph.templateGraphBlock.before(hr)
+    graph.block.querySelector('.menu').querySelector('[name="delete"]').onclick = function() {
+        graph.remove()
+        hr.remove()
+        graphs.splice(index, 1)
+        for (var i = 0; i < graphs.length; i++) {
+            graphs[i].show()
+        }
+    }
 }
 
 
-document.getElementById('addGraph').addEventListener('click', function() {
-    graphs.push(new Graph())
+
+for (var i = 0; i < defaultGraph.length; i++) {
+    createGraph(defaultGraph[i])
+}
+
+for (var i = 0; i < graphs.length; i++) {
+    graphs[i].show()
+}
+
+
+document.getElementById('add_linear').addEventListener('click', function() {
+    var options = {
+        name: 'name',
+        type: 'scatter',
+        graph: [],
+    }
+    createGraph(options)
+    $('#exampleModal').modal('hide')
 })
+
+document.getElementById('add_bar').addEventListener('click', function() {
+    var options = {
+        name: 'name',
+        x: 'Date',
+        type: 'bar',
+        range: [0.0, 1.0],
+        calc: 'среднее',
+        graph: [],
+    }
+    createGraph(options)
+    $('#exampleModal').modal('hide')
+})
+
+document.getElementById('add_polararea').addEventListener('click', function() {
+    var options = {
+        name: 'name',
+        x: 'Date',
+        type: 'polarArea',
+        range: [0.0, 1.0],
+        calc: 'среднее',
+        graph: [],
+    }
+    createGraph(options)
+    $('#exampleModal').modal('hide')
+})
+

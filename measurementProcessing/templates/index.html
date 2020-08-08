@@ -10,6 +10,25 @@
     <link rel="stylesheet" href="{% static 'css/graphs.css' %}">
 </head>
 <body>
+    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="exampleModalLabel">Создание графика</h5>
+            </div>
+            <div class="modal-body">
+                <div class="list-group">
+                    <button type="button" id="add_linear" class="list-group-item list-group-item-action">Линейная диаграмма</button>
+                    <button type="button" id="add_bar" class="list-group-item list-group-item-action">Столбчатая диаграмма</button>
+                    <button type="button" id="add_polararea" class="list-group-item list-group-item-action">Полярная диаграмма</button>
+                </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+          </div>
+        </div>
+    </div>
     <div id="colorPickerBlock">
         <div id="colorpicker" class="hor-center"></div>
         <input id="noColor" type="button" class="hor-center" value="Нет цвета">
@@ -205,6 +224,14 @@
         <!--############ Graph ############-->
         <template id="graphBlock">
         <div class="grBar">
+            <img class="ellipsis" src="{% static 'svg/morevertical_110934.svg' %}">
+            <div class="menu">
+                <div>
+                    <p>Название графика</p>
+                    <input name="change_name" value="Название">
+                </div>
+                <p name="delete">Удалить</p>
+            </div>
             <h1>Название</h1>
             <div class="gr flatten">
                 <div class="graph">
@@ -213,7 +240,7 @@
             </div>
         </div>
         </template>
-        <div class="addGraph" id="addGraph">
+        <div class="addGraph" id="addGraph" data-toggle="modal" data-target="#exampleModal">
             <img class="center" draggable="false" src="{% static 'image/plus.png' %}">
         </div>
     </div>
@@ -234,6 +261,7 @@
 <script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@0.7.7"></script>
 <script src="{% static 'bootstrap-4.3.1-dist/js/bootstrap.bundle.min.js' %}"></script>
+<script src="{% static 'bootstrap-4.3.1-dist/js/bootstrap.min.js' %}"></script>
 <script src="{% static 'js/jquery.js' %}"></script>
 <script src="{% static 'js/range.js' %}"></script>
 <script src="{% static 'js/defaultSet.js' %}"></script>
