@@ -92,7 +92,7 @@ class SettingGraph {
         this.header = this.div.querySelector('[name=header]')
         this.graphColor = this.div.querySelector('[name="graphColor"]')
         this.arrow = this.div.querySelector('.arrow')
-        this.heightSetting = this.div.querySelector('.datasetSettings').offsetHeight + this.header.offsetHeight + 5
+        this.heightSetting = this.div.querySelector('.datasetSettings').offsetHeight + this.header.offsetHeight + 20
 
         this.colors = {
             borderColor: this.div.querySelector('[name="borderColor"]'),
@@ -110,6 +110,13 @@ class SettingGraph {
         this.header.onclick = () => this.show()
 
         this.div.querySelector('[name="deleteLittleGraph"]').onclick = () => self.remove()
+        var renameGraph = this.div.querySelector('[name="rename_graph"]')
+        renameGraph.value = this.getDataset('label')
+        renameGraph.maxLength = 20
+        renameGraph.oninput = function() {
+            self.setDataset('label', this.value)
+            self.graphName.innerHTML = this.value
+        }
     }
 
     getSetting() {}
@@ -428,11 +435,10 @@ class Bar extends SettingGraph {
     }
 
     getSetting() {
-        var index = this.dataset.label.length - 1 
         return {
-            label: this.dataset.label[index],
-            borderColor: this.dataset.borderColor[index],
-            backgroundColor: this.dataset.backgroundColor[index],
+            label: this.dataset.label[this.index],
+            borderColor: this.dataset.borderColor[this.index],
+            backgroundColor: this.dataset.backgroundColor[this.index],
             device: this.param.device,
             y: this.param.y,
         }
@@ -494,6 +500,7 @@ class Graph {
             if (isScrolledIntoView(self.block)) {
                 self.addDatasets(options.graph)
                 window.removeEventListener('scroll', self.show);
+                self.show = function() {}
             }
         }
         window.addEventListener('scroll', this.show);
@@ -507,6 +514,19 @@ class Graph {
 
     getNewGraph(options) {}
     addDatasets(graph) {}
+
+    getOptions() {
+        var newOptions = {}
+        if (this.settingGraph.length > 0) {
+            Object.assign(newOptions, this.options)
+            newOptions.graph = []
+            this.settingGraph.forEach(e => newOptions.graph.push(e.getSetting()))
+        } else {
+            newOptions = this.options
+        }
+
+        return newOptions
+    }
 
     remove() {
         while (this.settingGraph.length != 0)
@@ -568,7 +588,7 @@ class GraphScatter extends Graph {
     }
 
     addDatasets(graph) {
-        for (var i = graph.length - 1; i >= 0; i--)
+        for (var i = 0; i < graph.length; i++)
             this.addGraph(Scatter, graph[i])
     }
 }
@@ -612,6 +632,7 @@ class GraphBar extends Graph {
         var setBat = Bar.setBar.content.cloneNode(true).firstElementChild
         this.block.querySelector('.gr').append(setBat)
         this.connectHTML(setBat, 'РОСА К-2')
+        this.updateTypeRange(options.x)
         this.chart.options.legend.display = false
 
         this.block.querySelector('[name="add_graph"]').onclick = function() {
@@ -621,8 +642,26 @@ class GraphBar extends Graph {
     }
 
     addDatasets(graph) {
-        for (var i = graph.length - 1; i >= 0; i--)
+        for (var i = 0; i < graph.length; i++)
             this.addGraph(Bar, graph[i])
+    }
+
+    updateTypeRange(p) {
+        if (p == 'Date')
+            this.fromto[0].type = 'datetime-local'
+        else
+            this.fromto[0].type = 'number'
+        this.fromto[1].type = this.fromto[0].type
+        this.options.range[0] = 0
+        this.options.range[1] = 1
+        this.range.set(0, 1)
+        this.rangeX.min = -Infinity
+        this.rangeX.max = Infinity
+        for (let i = 0; i < this.settingGraph.length; i++) {
+            this.options.x = p
+            this.settingGraph[i].updateRangeX(()=>this.settingGraph[i].updateGraph(false))
+        }
+        this.chart.update()
     }
 
     connectHTML(setBat, device) {
@@ -630,23 +669,7 @@ class GraphBar extends Graph {
 
         this.fromto = [setBat.querySelector('[name="from_value"]'), setBat.querySelector('[name="to_value"]')]
         createDownTownList(this.block.querySelector('[name="parametersX"]'), Object.keys(data_parameters[device]), this.options.x, 
-            function(p) {
-                if (p == 'Date')
-                    self.fromto[0].type = 'datetime-local'
-                else
-                    self.fromto[0].type = 'number'
-                self.fromto[1].type = self.fromto[0].type
-                self.options.range[0] = 0
-                self.options.range[1] = 1
-                range.set(0, 1)
-                self.rangeX.min = -Infinity
-                self.rangeX.max = Infinity
-                for (let i = 0; i < self.settingGraph.length; i++) {
-                    self.options.x = p
-                    self.settingGraph[i].updateRangeX(()=>self.settingGraph[i].updateGraph(false))
-                }
-                self.chart.update()
-            }
+            p => self.updateTypeRange(p)
         )
 
         createDownTownList(this.block.querySelector('[name="calc"]'), Object.keys(this.calculation), Object.keys(this.calculation)[0], 
@@ -678,7 +701,7 @@ class GraphBar extends Graph {
                 self.setInputRange('min', value)
             }
             var start = (value - self.rangeX.min) / rangeA
-            range.set(start, self.options.range[1])
+            self.range.set(start, self.options.range[1])
             unpdateGraphWithRange(start, self.options.range[1])
         }
 
@@ -692,7 +715,7 @@ class GraphBar extends Graph {
                 self.setInputRange('max', value)
             }
             var end = (value - self.rangeX.min) / rangeA
-            range.set(self.options.range[0], end)
+            self.range.set(self.options.range[0], end)
             unpdateGraphWithRange(self.options.range[0], end)
         }
 
@@ -702,14 +725,13 @@ class GraphBar extends Graph {
             self.chart.update()
         })
 
-        var range = new Range(this.block.querySelector('.doubleRange'), function(x, x1) {
+        this.range = new Range(this.block.querySelector('.doubleRange'), function(x, x1) {
             var isDate = self.options.x == 'Date'
             var range = self.rangeX.max - self.rangeX.min
             self.setInputRange('min', self.rangeX.min + range * x, isDate)
             self.setInputRange('max', self.rangeX.min + range * x1, isDate)
             unpdateGraphWithRange(x, x1)
         })
-        range.set(this.options.range[0], this.options.range[1])
     }
 
     setMinAxes(min) {
@@ -758,6 +780,7 @@ class GraphPolarArea extends GraphBar {
         var setBat = PolarArea.setBar.content.cloneNode(true).firstElementChild
         this.block.querySelector('.gr').append(setBat)
         this.connectHTML(setBat, 'РОСА К-2')
+        this.updateTypeRange(options.x)
         this.chart.options.legend.display = false
 
         this.block.querySelector('[name="add_graph"]').onclick = function() {
@@ -767,7 +790,7 @@ class GraphPolarArea extends GraphBar {
     }
 
     addDatasets(graph) {
-        for (var i = graph.length - 1; i >= 0; i--)
+        for (var i = 0; i < graph.length; i++)
             this.addGraph(PolarArea, graph[i])
     }
 }
@@ -798,7 +821,9 @@ function createGraph(options) {
 }
 
 
-
+var userSet = localStorage.getItem('graphs')
+if (userSet)
+    defaultGraph = JSON.parse(userSet)
 for (var i = 0; i < defaultGraph.length; i++) {
     createGraph(defaultGraph[i])
 }
@@ -844,3 +869,8 @@ document.getElementById('add_polararea').addEventListener('click', function() {
     $('#exampleModal').modal('hide')
 })
 
+document.getElementById('SaveParam').addEventListener('click', function() {
+    var param = []
+    graphs.forEach(e => param.push(e.getOptions()))
+    localStorage.setItem('graphs', JSON.stringify(param))
+})

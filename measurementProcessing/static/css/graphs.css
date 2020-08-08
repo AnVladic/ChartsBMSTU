@@ -239,3 +239,24 @@ img.ellipsis {
     padding: 0 10px;
     padding-bottom: 10px;
 }
+
+.dropdown-menu input {
+    margin: 0px 10px;
+    width: auto;
+    margin-bottom: 10px;
+}
+
+.dropdown.drop-setting {
+    margin-bottom: 19px;
+}
+
+input#SaveParam {
+    position: fixed;
+    right: 21px;
+    width: 158px;
+    background-color: #2196F3;
+    z-index: 119px;
+    color: #fff;
+    height: 40px;
+    top: 20px;
+}

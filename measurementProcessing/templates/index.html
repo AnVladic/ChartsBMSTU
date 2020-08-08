@@ -46,6 +46,16 @@
                     <p class="arrow">></p>
                 </div>
                 <div class="datasetSettings">
+                    <div class="dropdown drop-setting">
+                        <button class="dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <img class="iconSet" src="{% static 'svg/settings-svgrepo-com.svg' %}">
+                            rename/delete
+                        </button>
+                        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                            <input name="rename_graph" value="имя">
+                            <p name="deleteLittleGraph" class="dropdown-item">Удалить</p>
+                        </div>
+                    </div>
                     <div class="flatten">
                         <div name="borderColor"class="square"></div>
                         <p>Цвет контура</p>
@@ -82,7 +92,6 @@
                         <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                         </div>
                     </div>
-                    <button type="button" name="deleteLittleGraph" class="btn btn-danger btn-sm">Удалить</button>
                 </div>
             </div>
         </template>
@@ -96,6 +105,16 @@
                     <p class="arrow">></p>
                 </div>
                 <div class="datasetSettings">
+                    <div class="dropdown drop-setting">
+                        <button class="dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <img class="iconSet" src="{% static 'svg/settings-svgrepo-com.svg' %}">
+                            rename/delete
+                        </button>
+                        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                            <input name="rename_graph" value="имя">
+                            <p name="deleteLittleGraph" class="dropdown-item">Удалить</p>
+                        </div>
+                    </div>
                     <div class="flatten">
                         <div name="borderColor"class="square"></div>
                         <p>Цвет контура</p>
@@ -118,7 +137,6 @@
                         <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                         </div>
                     </div>
-                    <button type="button" name="deleteLittleGraph" class="btn btn-danger btn-sm">Удалить</button>
                 </div>
             </div>
         </template>
@@ -244,6 +262,7 @@
             <img class="center" draggable="false" src="{% static 'image/plus.png' %}">
         </div>
     </div>
+    <input type="button" id="SaveParam" value="Сохранить графики">
 </body>
 <script type="text/javascript">
     var data_parameters = {{name_parameters|safe}}
